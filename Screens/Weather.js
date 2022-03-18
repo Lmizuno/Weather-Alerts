@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Text, View } from "react-native";
 import { Styles } from "../Styles/Styles";
 import DashboardGradient from "../Styles/DashboardGradient";
@@ -9,7 +9,7 @@ import { Alert } from "react-native";
 import { auth } from "../FirebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
-
+import WeatherUpdate from "../Services/WeatherUpdateService";
 // onAuthStateChanged(auth, (user) => {
 //     console.log("Auth State change observer called");
 //     if (user) {
@@ -21,54 +21,52 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 //   });
 
 const Weather = (props) => {
-  const [currentUser, setUser] = React.useState({});
-  const [currentTemperature, setTemperature] = React.useState(0); //temp in C
-  const [currentColorScheme, setColorScheme] = React.useState('cold'); 
-  
-  FetchWeatherInfo = () => {
-    
-    //DashboardGradientColors types, 'cold', 'neutral', 'warm'
-    if(temp < 0 ){
-        setColorScheme('cold');
-    }else if(temp < 20){
-        setColorScheme('neutral');
-    }else if(temp > 20){
-        setColorScheme('warm');
-    }
-  };
+  const [currentUser, setUser] = useState({});
+  const [currentTemperature, setTemperature] = useState(0); //temp in C
+  const [currentColorScheme, setColorScheme] = useState("cold");
+  const [weather, setWeather] = useState({});
 
-  React.useEffect(() => {
-    //==MOUNT==
-
+  //Component Mount
+  useEffect(() => {
     //Set User
     setUser(auth.currentUser);
-    
-    //Grab Weather Info
-    FetchWeatherInfo();
-    return () => {
-        //==UN MOUNT==
-    };
+
+    (async () => {
+      let weatherInfo = await WeatherUpdate();
+      setWeather(weatherInfo);
+
+      let temp = weatherInfo.main.temp - 273.15;
+      setTemperature(temp);
+      if (temp < 0) {
+        setColorScheme("cold");
+      } else if (temp < 20) {
+        setColorScheme("neutral");
+      } else if (temp > 20) {
+        setColorScheme("warm");
+      }
+    })();
   }, []);
 
-  
+  // TODO: Add this to a sidebar component
+  // signoutWithFirebase = () => {
+  //   signOut(auth).then(function () {
+  //     // if logout was successful
+  //     if (!currentUser) {
+  //       Alert.alert("Logged out!");
+  //       //Redirect to login page
+  //       props.navigation.navigate('Login');
 
-  signoutWithFirebase = () => {
-    signOut(auth).then(function () {
-      // if logout was successful
-      if (!currentUser) {
-        Alert.alert("Logged out!");
-        //Redirect to login page
-        props.navigation.navigate('Login');
-
-      }
-    });
-  };
+  //     }
+  //   });
+  // };
 
   return (
     <View style={Styles.mainScreen}>
-        <DashboardGradient color={currentColorScheme}/>
+      {/* <DashboardGradient color={currentColorScheme}/> */}
       <Text>Welcome to the Weather Dashboard!</Text>
       <Text>{currentUser.email}</Text>
+      <Text>Temperature: {currentTemperature} °C </Text>
+      {/* <Text>Humidity: {weather}% </Text> */}
     </View>
   );
 };
