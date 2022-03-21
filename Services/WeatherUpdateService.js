@@ -1,10 +1,10 @@
 // Weather  Update
-const { WEATHER_INFO, LAST_WEATHER_API_CALL } = require("./LocalStorageKeys");
+import * as localStorageKeys from "../Services/LocalStorageKeys"
 import * as localStorage from  "./LocalStorageService";
 import LocationUpdate from "./LocationUpdateService";
 
 const WeatherUpdate = async () => {
-  let lastApiCall = await localStorage.getDataString(LAST_WEATHER_API_CALL);
+  let lastApiCall = await localStorage.getDataString(localStorageKeys.LAST_WEATHER_API_CALL);
 
   //Should we update the weather info?
   let now = Date.now();
@@ -14,7 +14,7 @@ const WeatherUpdate = async () => {
 
     if (minutesPassed <= 30) {
       //No Need to fetch again
-      return await localStorage.getDataObject(WEATHER_INFO);
+      return await localStorage.getDataObject(localStorageKeys.WEATHER_INFO);
     } else {
       //Fetch again
       let locationObj = LocationUpdate();
@@ -43,9 +43,9 @@ const FetchWeatherAPI = async (lat, lon) => {
       .then((response) => response.json())
       .then((data) => {
         // Note last api call, we will make 1 call every 30 minutes
-        localStorage.storeDataString(LAST_WEATHER_API_CALL, Date.now().toString());
+        localStorage.storeDataString(localStorageKeys.LAST_WEATHER_API_CALL, Date.now().toString());
 
-        localStorage.storeDataObject(WEATHER_INFO, data);
+        localStorage.storeDataObject(localStorageKeys.WEATHER_INFO, data);
         return data; // local
       });
   } else {

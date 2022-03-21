@@ -8,16 +8,10 @@ import { Styles } from "../Styles/Styles";
 import { auth } from "../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Alert } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CheckBox } from "react-native-elements";
+import localStorageKeys from "../Services/LocalStorageService";
+import {getDataString,storeDataString } from "../Services/LocalStorageService";
 
-const storeData = async (key, value) => {
-  try {
-    await AsyncStorage.setItem(key, value);
-  } catch (e) {
-    console.log(`error saving: ${e.message} `);
-  }
-};
 // Register
 const Login = (props) => {
   const [login, onChangeLogin] = React.useState("");
@@ -25,33 +19,31 @@ const Login = (props) => {
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
 
   useEffect(() => {
-    const fetchLoginData = async () => {
-      //Runs only on the first render
+    (async () => {
       try {
-        const login = await AsyncStorage.getItem("@login");
-        const passw = await AsyncStorage.getItem("@passw");
-        const saveInfo = await AsyncStorage.getItem("@saveInfo");
+        const login = await getDataString(localStorageKeys.LOGIN);
+        const passw = await getDataString(localStorageKeys.PASSW);
+        const saveInfo = await getDataString(
+          localStorageKeys.SAVE_INFO
+        );
 
         if (login !== null) {
-          // value previously stored
           onChangeLogin(login);
         }
         if (passw !== null) {
-          // value previously stored
           onChangePassw(passw);
         }
         if (saveInfo !== null) {
-          // value previously stored
-          setToggleCheckBox((saveInfo === 'true'));
+          setToggleCheckBox(saveInfo === "true");
         }
       } catch (e) {
         console.log("failed retrieving login info");
+        console.log(e);
       }
-    };
-    fetchLoginData();
+    })();
   }, []);
 
-  const onPress = () => {
+  const onPress = async () => {
     //Login on Firebase
     console.log("User Login Started.");
 
@@ -65,10 +57,17 @@ const Login = (props) => {
       return;
     }
 
-    if (toggleCheckBox) {
-      storeData("@login", login);
-      storeData("@passw", passw);
-      storeData("@saveInfo", toggleCheckBox.toString());
+    try {
+      if (toggleCheckBox) {
+        await storeDataString(localStorageKeys.LOGIN, login);
+        await storeDataString(localStorageKeys.PASSW, passw);
+        await storeDataString(
+          localStorageKeys.SAVE_INFO,
+          toggleCheckBox.toString()
+        );
+      }
+    } catch (err) {
+      console.log(err);
     }
 
     signInWithEmailAndPassword(auth, login, passw)
@@ -129,7 +128,7 @@ const Login = (props) => {
         />
 
         {/*https://firebase.google.com/docs/auth/web/auth-state-persistence*/}
-        
+
         <CheckBox
           center
           title="Save Login Info"
