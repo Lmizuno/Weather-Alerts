@@ -9,8 +9,11 @@ import { auth } from "../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Alert } from "react-native";
 import { CheckBox } from "react-native-elements";
-import localStorageKeys from "../Services/LocalStorageService";
-import {getDataString,storeDataString } from "../Services/LocalStorageService";
+import * as localStorageKeys from "../Services/LocalStorageKeys";
+import {
+  getDataString,
+  storeDataString,
+} from "../Services/LocalStorageService";
 
 // Register
 const Login = (props) => {
@@ -23,9 +26,7 @@ const Login = (props) => {
       try {
         const login = await getDataString(localStorageKeys.LOGIN);
         const passw = await getDataString(localStorageKeys.PASSW);
-        const saveInfo = await getDataString(
-          localStorageKeys.SAVE_INFO
-        );
+        const saveInfo = await getDataString(localStorageKeys.SAVE_INFO);
 
         if (login !== null) {
           onChangeLogin(login);

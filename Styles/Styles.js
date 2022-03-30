@@ -44,4 +44,9 @@ export const Styles = StyleSheet.create({
     fontSize: 25,
     color: "#fff",
   },
+  weatherTemperature: {
+    fontSize: 55,
+    color: "#fff",
+    fontWeight: "bold"
+  },
 });

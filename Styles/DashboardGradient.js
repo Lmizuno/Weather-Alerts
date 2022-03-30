@@ -18,12 +18,14 @@ const DashboardGradient = (props) => {
       } else if (props.color === "warm") {
         return ["#F6D657", "#983D4F", "#0C0C0C"];
       }
+    }else{
+      return ["#F6D657", "#983D4F", "#0C0C0C"];
     }
   };
   return (
     <BlurView intensity={40} style={[Styles.gradientFiller, props.style]}>
       <LinearGradient
-        colors={colorArray}
+        colors={colorArray()}
         end={{ x: 0, y: 1 }}
         locations={[0, 0.85, 0.93]}
         style={Styles.gradientFiller}

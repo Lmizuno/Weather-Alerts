@@ -6,13 +6,16 @@ const LocationUpdate = async () => {
   let { status } = await Location.requestForegroundPermissionsAsync();
 
   if (status !== "granted") {
-    setErrorMsg("Permission to access location was denied");
-    return;
+    throw "Permission to access location was denied";
   }
 
   locationObj = await Location.getCurrentPositionAsync({});
-  localStorage.storeDataObject(LAST_LOCATION, locationObj);
-  return locationObj;
+  if(locationObj){
+    localStorage.storeDataObject(LAST_LOCATION, locationObj);
+    return locationObj;
+  }else{
+    throw "Failed to get location"
+  }
 };
 
 export default LocationUpdate;

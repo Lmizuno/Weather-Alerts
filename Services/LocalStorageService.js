@@ -46,4 +46,4 @@ export const getDataObject = async (key) => {
         console.log(`Error getting key ${key}: ${e.message} `);
         return null;
     }
-}
+};
