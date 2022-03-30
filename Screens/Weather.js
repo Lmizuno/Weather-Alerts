@@ -187,7 +187,7 @@ const Weather = (props) => {
       <DashboardGradient color={currentColorScheme} />
       <MapComponent style={Styles.map} />
       <View style={Styles.email}>
-        <GlassButton text={currentUser.email} onPress={sendEmail} />
+        <GlassButton text="Share" onPress={sendEmail} />
       </View>
 
       {/* <Text>Humidity: {weather}% </Text> */}
