@@ -17,8 +17,9 @@ export const Styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    margin: 20,
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 15,
   },
   glassButtonStyle: {
     borderRadius: 10,
@@ -47,6 +48,12 @@ export const Styles = StyleSheet.create({
   weatherTemperature: {
     fontSize: 55,
     color: "#fff",
-    fontWeight: "bold"
+    fontWeight: "bold",
+  },
+  map: {
+    padding: 10,
+  },
+  email: {
+    padding: 15,
   },
 });

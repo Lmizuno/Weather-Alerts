@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Text, View } from "react-native";
+import { Text, View, Alert } from "react-native";
 import { Styles } from "../Styles/Styles";
 import DashboardGradient from "../Styles/DashboardGradient";
 import MainGlassContainer from "../Styles/MainGlassContainer";
 import { auth } from "../FirebaseConfig";
+import AlertTemperatureService from "../Services/AlertTemperatureService";
 
 import * as Location from "expo-location";
+import * as MailComposer from "expo-mail-composer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import MapComponent from "./MapComponent";
+import GlassButton from "../Styles/GlassButton";
 
 const Weather = (props) => {
   const [currentUser, setUser] = useState({});
@@ -25,6 +29,7 @@ const Weather = (props) => {
 
         setTemperature(weatherInfo.current.temp_c);
         setHumidity(weatherInfo.current.humidity);
+
         if (weatherInfo.current.temp_c < 0) {
           setColorScheme("cold");
         } else if (weatherInfo.current.temp_c < 20) {
@@ -32,6 +37,8 @@ const Weather = (props) => {
         } else if (weatherInfo.current.temp_c > 20) {
           setColorScheme("warm");
         }
+        //Added an alert service to handle the temperature
+        AlertTemperatureService(currentTemperature);
       } catch (err) {
         console.log(err);
       }
@@ -151,11 +158,37 @@ const Weather = (props) => {
       return null;
     }
   };
+
+  const sendEmail = async () => {
+    const isAvailable = await MailComposer.isAvailableAsync();
+    if (isAvailable) {
+      var options = {
+        //recipients (array) -- An array of e-mail addresses of the recipients.
+        recipients: [currentUser.email],
+        //ccRecipients (array) -- An array of e-mail addressess of the CC recipients
+        //bccRecipients (array) -- An array of e-mail addressess of the BCC recipients
+        //subject (string) -- Subject of the mail.
+        subject: "Temperature and Humidity Guidelines",
+        //body (string) --Body of the mail.
+        body: `Today's temperature is ${currentTemperature}oC and Humidity is ${currentHumidity}%`,
+        //is Html (boolean -- Whether the body contains HTML tags so it could be formatted properly. Not work)
+        //attachments (array) -- An array of app's internal file uris to attach.
+      };
+      MailComposer.composeAsync(options).then((result) => {
+        console.log(result.status);
+      });
+    } else {
+      Alert.alert("Email is not available");
+    }
+  };
+
   return (
     <View style={Styles.mainScreen}>
       <DashboardGradient color={currentColorScheme} />
-
-      <Text>{currentUser.email}</Text>
+      <MapComponent style={Styles.map} />
+      <View style={Styles.email}>
+        <GlassButton text="Share" onPress={sendEmail} />
+      </View>
 
       {/* <Text>Humidity: {weather}% </Text> */}
 
