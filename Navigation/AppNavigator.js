@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Menu from "../Screens/Menu";
 import Register from "../Screens/Register";
 import Login from "../Screens/Login";
-import Weather from "../Screens/Weather";
+import DrawerNavigator from "./DrawerNavigator";
 
 const Stack = createNativeStackNavigator();
 
@@ -21,8 +21,10 @@ function AppNavigator() {
         <Stack.Screen name="Menu" component={Menu} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Weather" component={Weather} />
-
+        <Stack.Screen
+          name="DrawerNavigator"
+          component={DrawerNavigator}
+        ></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

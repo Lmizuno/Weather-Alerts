@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Text, View } from "react-native";
+import { Text, TextPropTypes, View } from "react-native";
 import GlassButton from "../Styles/GlassButton";
 import GlassInput from "../Styles/GlassInput";
 import MainGradient from "../Styles/MainGradient";
 import MainGlassContainer from "../Styles/MainGlassContainer";
 import { Styles } from "../Styles/Styles";
-import { auth } from "../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Alert } from "react-native";
 import { CheckBox } from "react-native-elements";
-import * as localStorageKeys from "../Services/LocalStorageKeys";
-import {
-  getDataString,
-  storeDataString,
-} from "../Services/LocalStorageService";
+import { app } from "../FirebaseConfig";
+import { auth } from "../FirebaseAuth";
+import { doc, setDoc } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const db = getFirestore(app);
 
 // Register
 const Login = (props) => {
@@ -24,22 +25,22 @@ const Login = (props) => {
   useEffect(() => {
     (async () => {
       try {
-        const login = await getDataString(localStorageKeys.LOGIN);
-        const passw = await getDataString(localStorageKeys.PASSW);
-        const saveInfo = await getDataString(localStorageKeys.SAVE_INFO);
+        const login = await getDataString("@login");
+        const passw = await getDataString("@passw");
+        const saveInfo = await getDataString("@saveInfo");
 
-        if (login !== null) {
+        if (login !== null && login !== undefined) {
           onChangeLogin(login);
         }
-        if (passw !== null) {
+        if (passw !== null && passw !== undefined) {
           onChangePassw(passw);
         }
-        if (saveInfo !== null) {
+        if (saveInfo !== null && saveInfo !== undefined) {
           setToggleCheckBox(saveInfo === "true");
         }
+
       } catch (e) {
-        console.log("failed retrieving login info");
-        console.log(e);
+        console.log("Failed retrieving login info");
       }
     })();
   }, []);
@@ -60,26 +61,20 @@ const Login = (props) => {
 
     try {
       if (toggleCheckBox) {
-        await storeDataString(localStorageKeys.LOGIN, login);
-        await storeDataString(localStorageKeys.PASSW, passw);
-        await storeDataString(
-          localStorageKeys.SAVE_INFO,
-          toggleCheckBox.toString()
-        );
+        await storeDataString("@login", login);
+        await storeDataString("@passw", passw);
+        await storeDataString("@saveInfo", toggleCheckBox.toString());
       }
     } catch (err) {
-      console.log(err);
+      console.log("Fail to store data from login");
     }
 
     signInWithEmailAndPassword(auth, login, passw)
       .then(function (_firebaseUser) {
         Alert.alert("User logged in!");
 
-        // load data
-        //retrieveDataFromFirebase();
-
         // Redirect to Dashboard
-        props.navigation.navigate("Weather");
+        props.navigation.navigate("DrawerNavigator");
       })
       .catch(function (error) {
         var errorCode = error.code;
@@ -91,7 +86,36 @@ const Login = (props) => {
           Alert.alert(errorMessage);
         }
       });
+
+    console.log("PUSH TO DB");
+    try {
+      await setDoc(doc(db, "last-logins", login), {
+        name: login,
+        timestamp: new Date().toString(),
+      });
+    } catch (err) {
+      console.log("Fail to push to DB");
+    }
   };
+
+  const storeDataString = async (key, value) => {
+    try {
+      await AsyncStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.log(`Error saving key ${key}: ${e.message} `);
+      return false;
+    }
+  };
+  const getDataString = async (key) => {
+    try {
+      return await AsyncStorage.getItem(key);
+    } catch (e) {
+      console.log(`Error getting key ${key}: ${e.message} `);
+      return false;
+    }
+  };
+  
 
   return (
     <View
@@ -127,9 +151,6 @@ const Login = (props) => {
           autoCompleteType="password"
           keyboardType="visible-password"
         />
-
-        {/*https://firebase.google.com/docs/auth/web/auth-state-persistence*/}
-
         <CheckBox
           center
           title="Save Login Info"

@@ -6,9 +6,7 @@ import MainGradient from "../Styles/MainGradient";
 import MainGlassContainer from "../Styles/MainGlassContainer";
 import { Styles } from "../Styles/Styles";
 import { Alert } from "react-native";
-
-// Firebase
-import { auth } from "../FirebaseConfig";
+import { auth } from "../FirebaseAuth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 // Register
@@ -18,7 +16,7 @@ const Register = (props) => {
 
   const onPress = () => {
     //Register on Firebase
-    console.log("User Registration Started.")
+    console.log("User Registration Started.");
 
     //make better validation
     if (name.length < 4) {
@@ -34,7 +32,6 @@ const Register = (props) => {
 
     createUserWithEmailAndPassword(auth, name, passw)
       .then(function (_firebaseUser) {
-
         const user = _firebaseUser.user.email;
 
         Alert.alert(`User ${user} registered!`);
@@ -43,7 +40,7 @@ const Register = (props) => {
         onChangePassw("");
 
         //Redirect to login
-        props.navigation.navigate('Login')
+        props.navigation.navigate("Login");
       })
       .catch(function (error) {
         var errorCode = error.code;

@@ -5,14 +5,6 @@ import MainGradient from "../Styles/MainGradient";
 import MainGlassContainer from "../Styles/MainGlassContainer";
 import GlassButton from "../Styles/GlassButton";
 
-// Menu
-// If there is a saved login on the phone
-//   Auto Fill
-// Auto Login box is checked
-//   Auto Login => Goto Dashboard
-// No Saved login
-//   Redirect to Register
-
 const Menu = (props) => {
   return (
     <View style={Styles.mainScreen}>
@@ -21,6 +13,7 @@ const Menu = (props) => {
       <MainGlassContainer>
         <Text style={[Styles.title, { marginBottom: 30 }]}>Weather Alerts</Text>
         <GlassButton
+          style={{ marginBottom: 30 }}
           text="Register"
           onPress={() => props.navigation.navigate("Register")}
         />

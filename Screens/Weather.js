@@ -3,9 +3,8 @@ import { Text, View, Alert } from "react-native";
 import { Styles } from "../Styles/Styles";
 import DashboardGradient from "../Styles/DashboardGradient";
 import MainGlassContainer from "../Styles/MainGlassContainer";
-import { auth } from "../FirebaseConfig";
+import { auth } from "../FirebaseAuth";
 import AlertTemperatureService from "../Services/AlertTemperatureService";
-
 import * as Location from "expo-location";
 import * as MailComposer from "expo-mail-composer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -64,29 +63,21 @@ const Weather = (props) => {
   const WeatherUpdate = async () => {
     console.log("Weather Update");
     let lastApiCall = await getDataString("@lastApiCall");
-
-    //Should we update the weather info?
     let now = Date.now();
 
     if (lastApiCall) {
       console.log(" Retrieve Weather from mobile");
-
       let minutesPassed = (now - lastApiCall) / (1000 * 60);
-
       if (minutesPassed <= 30) {
-        //No Need to fetch again
         console.log(" No Need to fetch again");
 
         return await getDataObject("@weatherInfo");
       }
     }
-    let locationObj = await LocationUpdate();
 
-    // Prepare API request
+    let locationObj = await LocationUpdate();
     let lat = locationObj.coords.latitude;
     let lon = locationObj.coords.longitude;
-
-    //Fetch API
     let weatherInfo = await FetchWeatherAPI(lat, lon);
 
     if (weatherInfo) {
@@ -97,7 +88,7 @@ const Weather = (props) => {
   };
   const FetchWeatherAPI = async (lat, lon) => {
     console.log("FetchWeatherAPI");
-    let apiKey = "38d8a275e1fedc1113729c773d7f9028";
+    let apiKey = "38d8a275e1fedc1113729c773d7f9028"; //Since this is a student project, this api key is set to expire in 20 days after the project is due
 
     if (lat && lon) {
       let apiURL = `api.openweathermap.org/data/2.5/weather?lat=${lat.toFixed(
@@ -163,16 +154,9 @@ const Weather = (props) => {
     const isAvailable = await MailComposer.isAvailableAsync();
     if (isAvailable) {
       var options = {
-        //recipients (array) -- An array of e-mail addresses of the recipients.
         recipients: [currentUser.email],
-        //ccRecipients (array) -- An array of e-mail addressess of the CC recipients
-        //bccRecipients (array) -- An array of e-mail addressess of the BCC recipients
-        //subject (string) -- Subject of the mail.
         subject: "Temperature and Humidity Guidelines",
-        //body (string) --Body of the mail.
         body: `Today's temperature is ${currentTemperature}oC and Humidity is ${currentHumidity}%`,
-        //is Html (boolean -- Whether the body contains HTML tags so it could be formatted properly. Not work)
-        //attachments (array) -- An array of app's internal file uris to attach.
       };
       MailComposer.composeAsync(options).then((result) => {
         console.log(result.status);
@@ -189,9 +173,6 @@ const Weather = (props) => {
       <View style={Styles.email}>
         <GlassButton text="Share" onPress={sendEmail} />
       </View>
-
-      {/* <Text>Humidity: {weather}% </Text> */}
-
       <MainGlassContainer>
         <Text style={Styles.weatherTemperature}>{currentTemperature}°C </Text>
         <Text style={Styles.weatherTemperature}>{currentHumidity}% </Text>

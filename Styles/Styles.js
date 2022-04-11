@@ -16,7 +16,7 @@ export const Styles = StyleSheet.create({
   mainGlassContainer: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
+
     margin: 20,
     padding: 20,
     borderRadius: 15,
@@ -29,6 +29,16 @@ export const Styles = StyleSheet.create({
   h1: {
     fontSize: 50,
     textAlign: "center",
+  },
+  h2: {
+    fontSize: 18,
+    textAlign: "left",
+    color: "white",
+  },
+  h3: {
+    fontSize: 18,
+    textAlign: "left",
+    color: "white",
   },
   title: {
     color: "#fff",
